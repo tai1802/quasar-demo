@@ -131,22 +131,20 @@ class ResizableTable {
     const rows = this.table.getElementsByTagName('tr'),
       cols = rows[0] ? rows[0].children : undefined;
     if (!cols) return;
-
-    // table.style.overflow = 'hidden'
-
     const tableHeight = this.table.offsetHeight;
 
     for (let row = 0; row < rows.length; ++row) {
       const cols = rows[row] ? rows[row].children : [];
       for (let col = 0; col < cols.length; ++col) {
-        if (row === 0) {
+        const isResize = cols[col].getAttribute('resize-column') === 'true';
+        if (row === 0 && isResize) {
           const div = this.createDiv(tableHeight);
           this.divs.push(div);
           cols[col].appendChild(div);
           this.setListeners(div);
           cols[col].style.position = 'relative';
         }
-        cols[col].style.whiteSpace = 'nowrap';
+        cols[col].style.whiteSpace = 'normal';
         cols[col].style.textOverflow = 'ellipsis';
         // cols[col].style.overflow = 'hidden'
       }

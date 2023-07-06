@@ -8,8 +8,6 @@
       @click="icon = true"
     />
     <q-table
-      title="Treats"
-      flat
       bordered
       :rows="rows"
       :columns="columns"
@@ -28,15 +26,17 @@
     >
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th></q-th>
+          <q-th style="width: 48px !important; max-width: 48px"></q-th>
           <q-th
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
             class="text-italic text-blue"
+            :resize-column="resizeColumns.includes(col.name)"
           >
             {{ col.label }}
           </q-th>
+          <q-th v-if="resizeColumns.length"></q-th>
         </q-tr>
       </template>
       <template v-slot:body="props">
@@ -55,16 +55,13 @@
           <q-td key="id" :props="props">
             {{ props.row.id }}
           </q-td>
-          <q-td key="text" :props="props">
-            <q-badge color="green">
-              {{ props.row.text }}
-            </q-badge>
+          <q-td key="quote" :props="props" style="white-space: normal">
+            {{ props.row.quote }}
           </q-td>
           <q-td key="author" :props="props">
-            <q-badge color="blue" v-if="props.row.author">
-              {{ props.row.author }}
-            </q-badge>
+            {{ props.row.author }}
           </q-td>
+          <q-td v-if="resizeColumns.length"></q-td>
         </q-tr>
       </template>
       <template v-slot:pagination="scope">
@@ -114,16 +111,26 @@
     <q-dialog v-model="icon">
       <q-card>
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Options</div>
+          <div class="text-h6">Settings</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section>
           <div class="q-gutter-sm">
+            <div class="text-sm">Views Columns</div>
             <q-checkbox v-model="visibleColumns" val="id" label="ID" />
-            <q-checkbox v-model="visibleColumns" val="text" label="Quote" />
+            <q-checkbox v-model="visibleColumns" val="quote" label="Quote" />
             <q-checkbox v-model="visibleColumns" val="author" label="Author" />
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-gutter-sm">
+            <div class="text-sm">Resize Columns</div>
+            <q-checkbox v-model="resizeColumns" val="id" label="ID" />
+            <q-checkbox v-model="resizeColumns" val="quote" label="Quote" />
+            <q-checkbox v-model="resizeColumns" val="author" label="Author" />
           </div>
         </q-card-section>
       </q-card>
@@ -138,14 +145,15 @@ import axios from 'axios';
 
 interface Row {
   id: string;
-  text: string;
+  quote: string;
   author: string;
 }
 
 const icon = ref(false);
 const selection = ref<string[]>([]);
-const uriAPI = 'https://636322ac66f75177ea3e0792.mockapi.io/quote';
-const visibleColumns = ref(['id', 'text', 'author']);
+const uriAPI = 'https://636322ac66f75177ea3e0792.mockapi.io/quotev2';
+const visibleColumns = ref(['id', 'quote', 'author']);
+const resizeColumns = ref(['quote', 'author']);
 const rows = ref<Row[]>([]);
 const pagination = ref({
   sortBy: null,
@@ -158,22 +166,21 @@ const columns: QTableProps['columns'] = [
   {
     name: 'id',
     label: 'id',
-    align: 'left',
+    align: 'center',
     field: 'id',
+    style: 'width: 40px !important',
   },
   {
-    name: 'text',
+    name: 'quote',
     align: 'left',
     label: 'Quote',
-    field: 'text',
-    style: 'max-width: 200px',
+    field: 'quote',
   },
   {
     name: 'author',
     align: 'left',
     label: 'Author',
     field: 'author',
-    style: 'width: 50px',
   },
 ];
 
